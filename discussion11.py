@@ -39,12 +39,19 @@ def create_species_table(cur, conn):
 # TASK 1
 # CREATE TABLE FOR PATIENTS IN DATABASE
 def create_patients_table(cur, conn):
+    cur.execute("DROP TABLE IF EXISTS Patients")
+    cur.execute("CREATE TABLE Patients (pet_id INTEGER PRIMARY KEY, name TEXT, species_id INTEGER, age INTEGER, cuteness INTEGER, aggressiveness INTEGER)")
+    conn.commit()
     pass
 
 
 # ADD FLUFFLE TO THE TABLE
 def add_fluffle(cur, conn):
-    pass
+    cur.execute("INSERT INTO Patients (pet_id, name, species_id, age, cuteness, aggressiveness) VALUES (?, ?, ?, ?, ?, ?)", (0, 'Fluffle', 0, 3, 90, 100))
+    conn.commit()
+    # no pet id, Fluffle, "Rabbit", 3, 90, 100
+    # why do we write - for pet_id and for species_id?
+
     
 
 # TASK 2
@@ -58,14 +65,36 @@ def add_pets_from_json(filename, cur, conn):
     f.close()
     json_data = json.loads(file_data)
 
+    pet_id = 1
+
     # THE REST IS UP TO YOU
-    pass
+    for pet in json_data:
+        name = pet['name']
+        age = pet['age']
+        species = pet['species']
+        cuteness = pet['cuteness']
+        aggressiveness = pet['aggressiveness']
+        cur.execute('SELECT id FROM Species WHERE title = ?', (species,))
+        # DO NOT USE cur.execute(f'SELECT id FROM Species WHERE title = {species}')
+        # when species = 'Rabbit \nDROP TABLE' species_id = cur.fetchone()[0]
+        # print(cur.fetchone()
+
+        cur.execute("INSERT INTO Patients (pet_id, name, species_id, age, cuteness, aggressiveness) VALUES (?, ?, ?, ?, ?, ?)", (pet_id, name, species_id, age, cuteness, aggressiveness))
+        pet_id += 1
+
+    conn.commit()
+  
 
 
 # TASK 3
 # CODE TO OUTPUT NON-AGGRESSIVE PETS
 def non_aggressive_pets(aggressiveness, cur, conn):
-    pass
+    cur.execute('SELECT name FROM Patients WHERE aggressiveness <= ?', (aggressiveness,))
+    non_aggressive_pets_list = cur.fetchall() 
+    # we use fetchall() to get all rows of the select results 
+    non_aggressive_pets_list = [item[0] for item in non_aggressive_pets_list]
+    return non_aggressive_pets_list
+    
 
 
 
